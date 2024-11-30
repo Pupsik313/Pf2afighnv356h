@@ -1,0 +1,41 @@
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local Workspace = game:GetService("Workspace")
+
+local TARGET_GAME_ID = 7239319209
+local SERVER_LIMIT = 39
+
+local function teleportToMoneyPrinter(player)
+    local moneyPrinterModel = Workspace:FindFirstChild("Money Printer")
+    if moneyPrinterModel then
+        local proximityPrompt = moneyPrinterModel:FindFirstChildWhichIsA("ProximityPrompt")
+        local character = player.Character
+        while not character do
+            character = player.Character
+            wait()
+        end
+        local rootPart = character:WaitForChild("HumanoidRootPart")
+        
+        if rootPart then
+            rootPart.CFrame = moneyPrinterModel:GetPivot()
+            if proximityPrompt then
+                proximityPrompt:InputHoldBegin()
+            end
+        end
+    else
+        -- Server hop logic
+        TeleportService:Teleport(TARGET_GAME_ID, player)
+    end
+end
+
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        teleportToMoneyPrinter(player)
+    end)
+end)
+
+for _, player in Players:GetPlayers() do
+    player.CharacterAdded:Connect(function()
+        teleportToMoneyPrinter(player)
+    end)
+end
